@@ -63,7 +63,7 @@ def build_matrix(num_workers: int,
     file_count = len(list(build_directory.glob(glob_pattern)))
     files_per_worker = math.ceil(file_count / num_workers)
 
-    return list(range(1, file_count, files_per_worker))
+    return list(range(1, file_count + 1, files_per_worker))
 
 
 def execute_matrix(num_workers: int,
