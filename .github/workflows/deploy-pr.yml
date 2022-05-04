@@ -68,23 +68,29 @@ jobs:
               run_id: context.payload.workflow_run.id
             });
             let htmlArtifacts = artifacts.data.artifacts.filter((artifact) => {
-              return artifact.name.startsWith('html')
+              return artifact.name.startsWith('html-')
             });
-            for (const [i, artifact] of htmlArtifacts.entries()) {
+            for (const artifact of htmlArtifacts) {
               let download = await github.rest.actions.downloadArtifact({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 artifact_id: artifact.id,
                 archive_format: 'zip'
               });
-              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/html-${i}.zip`, Buffer.from(download.data));
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/${artifact.name}`, Buffer.from(download.data));
             }
 
       - name: Unpack HTML
         run: |
-          mkdir website
+          mkdir -p website/demos
+          
+          # Unzip the first archive as it contains all non demo pages
+          unzip -o -d website html-1.zip
+          rm html-1.zip
+          
+          # Unzip all remaining demos
           for f in html-*.zip; do
-            unzip -o -d website $f
+            unzip -o -d website/demos $f
           done
 
       - name: Upload HTML

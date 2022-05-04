@@ -155,25 +155,8 @@ jobs:
            --offset=${{ matrix.offset }} \
            --verbose
 
-#      - name: Upload QML Demos
-#        if: github.event_name == 'pull_request'
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: qml_demos-${{ matrix.offset }}.zip
-#          path: demos
-#          retention-days: 1
-#
-#      - name: Upload QML Backreferences
-#        if: github.event_name == 'pull_request'
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: qml_backreferences-${{ matrix.offset }}.zip
-#          path: backreferences
-#          if-no-files-found: ignore
-#          retention-days: 1
-
       - name: Upload Html
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && matrix.offset == 1
         uses: actions/upload-artifact@v3
         with:
           name: html-${{ matrix.offset }}.zip
@@ -181,13 +164,15 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-#      - name: Upload Results
-#        if: github.event_name == 'pull_request'
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: results-${{ matrix.offset }}.zip
-#          path: _build/test-results
-#          retention-days: 1
+      # Only upload demos since all other html files are pushed as artifact from offset 1
+      - name: Upload Demo Html
+        if: github.event_name == 'pull_request' && matrix.offset != 1
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-${{ matrix.offset }}.zip
+          path: _build/html/demos
+          if-no-files-found: error
+          retention-days: 1
 
       # These two steps are required as the subsequent workflow_run will not have
       #  the current context available to it.
